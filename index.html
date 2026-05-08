@@ -2,11 +2,9 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Liga de Surquillo - Control de Billar</title>
-    
-    <link rel="manifest" href="manifest.json">  
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>La Liga de Surquillo - Control</title>
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -18,63 +16,61 @@
             --warning: #f1c40f;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-light); margin: 0; padding: 15px; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-light); 
+            margin: 0; 
+            padding: 15px;
+            overscroll-behavior: none;
+        }
         
-        /* Header con Logo */
-        header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid #1a221a; padding-bottom: 15px; }
-        .logo-container { width: 50px; height: 50px; background: #1a1f1a; border-radius: 50%; overflow: hidden; border: 1px solid var(--primary-green); display: flex; align-items: center; justify-content: center; }
-        .logo-container img { width: 100%; height: 100%; object-fit: cover; }
-        header h1 { margin: 0; font-size: 1.3rem; letter-spacing: 1px; color: white; }
-        header span { color: var(--primary-green); font-size: 0.7rem; font-weight: bold; display: block; }
+        header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .logo-placeholder { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary-green); background: #1a1f1a; }
+        header h1 { margin: 0; font-size: 1.2rem; color: white; text-transform: uppercase; }
 
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #1a1f1a; padding: 5px; border-radius: 10px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: transparent; color: #666; cursor: pointer; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; background: transparent; color: #666; font-weight: bold; cursor: pointer; }
         .tab-btn.active { background: #242b24; color: var(--primary-green); border: 1px solid var(--primary-green); }
 
         .view { display: none; }
         .view.active { display: block; }
 
-        /* Estilos de Mesas */
-        .grid-mesas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        /* Mesas */
+        .grid-mesas { display: grid; grid-template-columns: 1fr; gap: 15px; }
         .card-mesa { background: var(--card-bg); border-radius: 15px; padding: 20px; border: 1px solid #1a221a; }
-        .timer-big { font-size: 2.8rem; font-family: monospace; text-align: center; margin: 10px 0; color: #222; }
-        .timer-big.active { color: var(--primary-green); text-shadow: 0 0 10px rgba(46, 204, 113, 0.2); }
+        .timer-big { font-size: 3rem; font-family: monospace; text-align: center; margin: 15px 0; color: #1a221a; }
+        .timer-big.active { color: var(--primary-green); }
         .timer-big.paused { color: var(--warning); opacity: 0.5; }
 
-        /* Botonera */
-        .controles-mesa { display: flex; gap: 10px; }
-        .btn { flex: 1; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid; transition: 0.2s; background: transparent; color: inherit; }
+        .controles { display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 15px; border-radius: 10px; font-weight: bold; border: 1px solid; background: transparent; cursor: pointer; }
         .btn-start { border-color: var(--primary-green); color: var(--primary-green); }
         .btn-pause { border-color: var(--warning); color: var(--warning); }
         .btn-stop { border-color: var(--danger); color: var(--danger); }
-        .btn-action { background: #1a1f1a; color: white; border-color: #333; margin-top: 10px; width: 100%; }
 
-        /* Tabla y Reporte */
-        .reporte-container { background: var(--card-bg); border-radius: 15px; padding: 15px; border: 1px solid #1a221a; }
-        .mesas-resumen-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .mesa-mini { background: #080c08; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #1a221a; }
-        .mesa-mini h4 { margin: 0; font-size: 0.65rem; color: #555; }
-        .mesa-mini .monto { font-size: 0.9rem; color: var(--primary-green); font-weight: bold; }
+        /* Reporte */
+        .resumen-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .resumen-card { background: #151b15; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #1f261f; }
+        .resumen-card h4 { margin: 0; font-size: 0.7rem; color: #555; }
+        .resumen-card div { font-size: 1rem; color: var(--primary-green); font-weight: bold; margin-top: 5px; }
 
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th { text-align: left; color: #555; padding: 10px; border-bottom: 1px solid #222; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 15px; }
+        th { text-align: left; color: #444; padding: 10px; border-bottom: 1px solid #222; }
         td { padding: 12px 10px; border-bottom: 1px solid #161a16; }
-        .fila-totales { background: #1a231a; font-weight: bold; color: var(--primary-green); }
+        .total-row { background: #1a231a; font-weight: bold; color: var(--primary-green); }
 
-        /* Modal Cobro */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--primary-green); width: 85%; max-width: 400px; text-align: center; }
-        .modal-val { font-size: 2.5rem; font-weight: bold; color: var(--primary-green); margin: 15px 0; }
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal-content { background: var(--card-bg); padding: 30px; border-radius: 20px; border: 1px solid var(--primary-green); width: 80%; text-align: center; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-container">
-            <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
-        </div>
+        <div class="logo-placeholder"></div>
         <div>
-            <span>SISTEMA DE CONTROL</span>
+            <small style="color:var(--primary-green); font-weight:bold;">SISTEMA DE CONTROL</small>
             <h1>LA LIGA DE SURQUILLO</h1>
         </div>
     </header>
@@ -89,35 +85,27 @@
     </div>
 
     <div id="view-reporte" class="view">
-        <div class="reporte-container">
-            <div class="mesas-resumen-grid" id="resumen-mesas"></div>
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr class="fila-totales" id="fila-totales-head"></tr>
-                        <tr>
-                            <th>MESA</th>
-                            <th>INICIO</th>
-                            <th>FIN</th>
-                            <th>TIEMPO</th>
-                            <th>TOTAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-historial"></tbody>
-                </table>
-            </div>
-            <button class="btn btn-action" style="color:var(--primary-green)" onclick="exportarExcel()">📥 EXPORTAR EXCEL</button>
-            <button class="btn btn-action" style="color:var(--danger)" onclick="limpiarRegistro()">🗑️ LIMPIAR TURNO</button>
+        <div class="resumen-grid" id="resumen-mesas"></div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr class="total-row" id="total-row"></tr>
+                    <tr><th>MESA</th><th>INICIO</th><th>FIN</th><th>TIEMPO</th><th>TOTAL</th></tr>
+                </thead>
+                <tbody id="historial-body"></tbody>
+            </table>
         </div>
+        <button class="btn btn-start" style="width:100%; margin-top:20px;" onclick="exportarExcel()">📥 EXCEL</button>
+        <button class="btn btn-stop" style="width:100%; margin-top:10px;" onclick="limpiarTodo()">🗑️ LIMPIAR TURNO</button>
     </div>
 
-    <div id="modal-cobro" class="modal-overlay">
+    <div id="modal-cobro" class="modal">
         <div class="modal-content">
-            <h2 id="modal-titulo">Mesa X</h2>
-            <p>Tiempo de juego: <strong id="modal-tiempo">00:00:00</strong></p>
-            <div class="modal-val" id="modal-monto">S/ 0.00</div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn btn-stop" style="border-color:#444; color:#888" onclick="cerrarModal()">CANCELAR</button>
+            <h2 id="m-title">Mesa</h2>
+            <p>Tiempo: <strong id="m-tiempo">00:00:00</strong></p>
+            <h1 id="m-monto" style="color:var(--primary-green)">S/ 0.00</h1>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-stop" onclick="cerrarModal()">CANCELAR</button>
                 <button class="btn btn-start" onclick="confirmarCobro()">CONFIRMAR</button>
             </div>
         </div>
@@ -125,148 +113,123 @@
 
     <script>
         const tarifas = { 1:12, 2:15, 3:12, 4:12, 5:12, 6:12 };
-        let historial = JSON.parse(localStorage.getItem('liga_billar_hist')) || [];
+        let historial = JSON.parse(localStorage.getItem('liga_hist')) || [];
         let estados = {};
         let mesaEnCobro = null;
 
         function init() {
             const grid = document.getElementById('container-mesas');
             for(let i=1; i<=6; i++) {
-                estados[i] = { activo: false, pausado: false, inicio: null, tiempoAcumulado: 0, intervalo: null };
+                estados[i] = { activo: false, pausado: false, inicio: null, acumulado: 0, intervalo: null };
                 grid.innerHTML += `
                     <div class="card-mesa">
-                        <div style="display:flex; justify-content:space-between"><strong>MESA ${i}</strong><small id="status-${i}" style="color:#333">● LIBRE</small></div>
-                        <div class="timer-big" id="timer-${i}">00:00:00</div>
-                        <div id="controles-${i}"><button class="btn btn-start" style="width:100%" onclick="iniciarMesa(${i})">▶ Iniciar</button></div>
+                        <div style="display:flex; justify-content:space-between"><strong>MESA ${i}</strong><small id="st-${i}">● LIBRE</small></div>
+                        <div class="timer-big" id="tm-${i}">00:00:00</div>
+                        <div id="ctrl-${i}"><button class="btn btn-start" style="width:100%" onclick="iniciar(${i})">▶ Iniciar</button></div>
                     </div>`;
             }
         }
 
-        function iniciarMesa(id) {
+        function iniciar(id) {
             const m = estados[id];
             m.activo = true; m.pausado = false; m.inicio = new Date();
             m.intervalo = setInterval(() => {
                 if(!m.pausado) {
-                    const diff = m.tiempoAcumulado + (new Date() - m.inicio);
-                    document.getElementById(`timer-${id}`).innerText = new Date(diff).toISOString().substr(11, 8);
+                    const diff = m.acumulado + (new Date() - m.inicio);
+                    document.getElementById(`tm-${id}`).innerText = new Date(diff).toISOString().substr(11, 8);
                 }
             }, 1000);
-            document.getElementById(`timer-${id}`).className = "timer-big active";
-            document.getElementById(`status-${id}`).style.color = "var(--primary-green)";
-            renderBotones(id);
-        }
-
-        function renderBotones(id) {
-            document.getElementById(`controles-${id}`).innerHTML = `
-                <div class="controles-mesa">
-                    <button id="btn-p-${id}" class="btn btn-pause" onclick="pausarMesa(${id})">II Pausar</button>
+            document.getElementById(`tm-${id}`).className = "timer-big active";
+            document.getElementById(`ctrl-${id}`).innerHTML = `
+                <div class="controles">
+                    <button id="bp-${id}" class="btn btn-pause" onclick="pausar(${id})">II Pausar</button>
                     <button class="btn btn-stop" onclick="prepararCobro(${id})">S/ Cobrar</button>
                 </div>`;
         }
 
-        function pausarMesa(id) {
+        function pausar(id) {
             const m = estados[id];
-            const timerDiv = document.getElementById(`timer-${id}`);
-            if (!m.pausado) {
-                m.pausado = true;
-                m.tiempoAcumulado += (new Date() - m.inicio);
-                timerDiv.classList.add('paused');
-                document.getElementById(`btn-p-${id}`).innerText = "▶ Continuar";
+            if(!m.pausado) {
+                m.pausado = true; m.acumulado += (new Date() - m.inicio);
+                document.getElementById(`tm-${id}`).classList.add('paused');
+                document.getElementById(`bp-${id}`).innerText = "▶ Continuar";
             } else {
-                m.pausado = false;
-                m.inicio = new Date();
-                timerDiv.classList.remove('paused');
-                document.getElementById(`btn-p-${id}`).innerText = "II Pausar";
+                m.pausado = false; m.inicio = new Date();
+                document.getElementById(`tm-${id}`).classList.remove('paused');
+                document.getElementById(`bp-${id}`).innerText = "II Pausar";
             }
         }
 
         function prepararCobro(id) {
             mesaEnCobro = id;
             const m = estados[id];
-            let ms = m.tiempoAcumulado + (m.pausado ? 0 : (new Date() - m.inicio));
-            const monto = (ms / 3600000 * tarifas[id]).toFixed(2);
-            document.getElementById('modal-titulo').innerText = `MESA ${id}`;
-            document.getElementById('modal-tiempo').innerText = new Date(ms).toISOString().substr(11, 8);
-            document.getElementById('modal-monto').innerText = `S/ ${monto}`;
+            let ms = m.acumulado + (m.pausado ? 0 : (new Date() - m.inicio));
+            document.getElementById('m-title').innerText = `MESA ${id}`;
+            document.getElementById('m-tiempo').innerText = new Date(ms).toISOString().substr(11, 8);
+            document.getElementById('m-monto').innerText = `S/ ${(ms/3600000 * tarifas[id]).toFixed(2)}`;
             document.getElementById('modal-cobro').style.display = 'flex';
         }
 
         function confirmarCobro() {
             const id = mesaEnCobro;
             const m = estados[id];
-            let ms = m.tiempoAcumulado + (m.pausado ? 0 : (new Date() - m.inicio));
-            const monto = parseFloat((ms / 3600000 * tarifas[id]).toFixed(2));
-            const ahora = new Date();
-
+            let ms = m.acumulado + (m.pausado ? 0 : (new Date() - m.inicio));
             historial.push({ 
                 Mesa: id, 
-                Inicio: m.activo && m.inicio ? m.inicio.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--', 
-                Fin: ahora.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 
-                Duracion: document.getElementById('modal-tiempo').innerText, 
-                Cobro: monto 
+                In: m.inicio.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                Out: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+                Dur: document.getElementById('m-tiempo').innerText,
+                Total: parseFloat((ms/3600000 * tarifas[id]).toFixed(2))
             });
-            
-            localStorage.setItem('liga_billar_hist', JSON.stringify(historial));
+            localStorage.setItem('liga_hist', JSON.stringify(historial));
             clearInterval(m.intervalo);
-            estados[id] = { activo: false, pausado: false, inicio: null, tiempoAcumulado: 0, intervalo: null };
-            document.getElementById(`controles-${id}`).innerHTML = `<button class="btn btn-start" style="width:100%" onclick="iniciarMesa(${id})">▶ Iniciar</button>`;
-            document.getElementById(`timer-${id}`).innerText = "00:00:00";
-            document.getElementById(`timer-${id}`).className = "timer-big";
-            document.getElementById(`status-${id}`).style.color = "#333";
+            estados[id] = { activo: false, pausado: false, inicio: null, acumulado: 0, intervalo: null };
+            document.getElementById(`tm-${id}`).innerText = "00:00:00";
+            document.getElementById(`tm-${id}`).className = "timer-big";
+            document.getElementById(`ctrl-${id}`).innerHTML = `<button class="btn btn-start" style="width:100%" onclick="iniciar(${id})">▶ Iniciar</button>`;
             cerrarModal();
         }
 
         function cerrarModal() { document.getElementById('modal-cobro').style.display = 'none'; }
 
-        function switchTab(t, btn) {
+        function switchTab(t, b) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('view-' + t).classList.add('active');
-            btn.classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('view-'+t).classList.add('active');
+            b.classList.add('active');
             if(t === 'reporte') renderReporte();
         }
 
         function renderReporte() {
-            const resContainer = document.getElementById('resumen-mesas');
-            const cuerpo = document.getElementById('cuerpo-historial');
-            const filaTotales = document.getElementById('fila-totales-head');
-            resContainer.innerHTML = "";
-            let totalG = 0;
-
+            const res = document.getElementById('resumen-mesas');
+            const body = document.getElementById('historial-body');
+            res.innerHTML = ""; body.innerHTML = "";
+            let totalT = 0;
             for(let i=1; i<=6; i++) {
-                const suma = historial.filter(h => h.Mesa == i).reduce((acc, c) => acc + c.Cobro, 0);
-                totalG += suma;
-                resContainer.innerHTML += `<div class="mesa-mini"><h4>MESA ${i}</h4><div class="monto">S/ ${suma.toFixed(2)}</div></div>`;
+                const suma = historial.filter(h => h.Mesa == i).reduce((a, c) => a + c.Total, 0);
+                totalT += suma;
+                res.innerHTML += `<div class="resumen-card"><h4>MESA ${i}</h4><div>S/ ${suma.toFixed(2)}</div></div>`;
             }
-            filaTotales.innerHTML = `<td colspan="4">TOTAL RECAUDADO TURNO</td><td>S/ ${totalG.toFixed(2)}</td>`;
-            cuerpo.innerHTML = "";
-            [...historial].reverse().forEach(s => {
-                cuerpo.innerHTML += `<tr><td>Mesa ${s.Mesa}</td><td>${s.Inicio}</td><td>${s.Fin}</td><td>${s.Duracion}</td><td style="color:var(--primary-green)">S/ ${s.Cobro.toFixed(2)}</td></tr>`;
+            document.getElementById('total-row').innerHTML = `<td colspan="4">TOTAL TURNO</td><td>S/ ${totalT.toFixed(2)}</td>`;
+            [...historial].reverse().forEach(h => {
+                body.innerHTML += `<tr><td>${h.Mesa}</td><td>${h.In}</td><td>${h.Out}</td><td>${h.Dur}</td><td>S/ ${h.Total.toFixed(2)}</td></tr>`;
             });
         }
 
-        function limpiarRegistro() {
-            if(confirm("¿Limpiar historial de La Liga de Surquillo?")) {
-                historial = []; localStorage.removeItem('liga_billar_hist'); renderReporte();
-            }
-        }
+        function limpiarTodo() { if(confirm("¿Borrar turno?")) { historial = []; localStorage.removeItem('liga_hist'); renderReporte(); } }
 
         function exportarExcel() {
-            if(historial.length === 0) return;
             const ws = XLSX.utils.json_to_sheet(historial);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Reporte");
-            XLSX.writeFile(wb, `Reporte_LaLiga_${new Date().toLocaleDateString()}.xlsx`);
+            XLSX.writeFile(wb, `Liga_${new Date().toLocaleDateString()}.xlsx`);
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
         }
 
         init();
-
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
-</script>
+    </script>
 </body>
 </html>
