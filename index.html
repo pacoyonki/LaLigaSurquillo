@@ -119,13 +119,19 @@
 
         function init() {
             const grid = document.getElementById('container-mesas');
+            grid.innerHTML = ""; // Limpia por si acaso
             for(let i=1; i<=6; i++) {
                 estados[i] = { activo: false, pausado: false, inicio: null, acumulado: 0, intervalo: null };
                 grid.innerHTML += `
                     <div class="card-mesa">
-                        <div style="display:flex; justify-content:space-between"><strong>MESA ${i}</strong><small id="st-${i}">● LIBRE</small></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size:1.1rem">MESA ${i}</strong>
+                            <small id="st-${i}" style="background:#1a1f1a; padding:4px 8px; border-radius:5px; font-size:0.6rem; color:#555">● LIBRE</small>
+                        </div>
                         <div class="timer-big" id="tm-${i}">00:00:00</div>
-                        <div id="ctrl-${i}"><button class="btn btn-start" style="width:100%" onclick="iniciar(${i})">▶ Iniciar</button></div>
+                        <div id="ctrl-${i}">
+                            <button class="btn btn-start" style="width:100%" onclick="iniciar(${i})">▶ INICIAR TURNO</button>
+                        </div>
                     </div>`;
             }
         }
